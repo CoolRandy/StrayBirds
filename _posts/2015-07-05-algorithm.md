@@ -5,7 +5,7 @@ category: 技术
 comments: false
 ---
 
-该篇blog部分迁移自我的博客园博文http://www.cnblogs.com/CoolRandy/p/4575267.html
+该篇blog部分迁移自我的博客园博文[CoolRandy](http://www.cnblogs.com/CoolRandy/p/4575267.html)
 
 ##字符串压缩
 利用字符重复出现的次数，编写一个方法，实现基本的字符串压缩功能
