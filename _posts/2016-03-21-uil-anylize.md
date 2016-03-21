@@ -1,9 +1,8 @@
 ---
+layout: post
 title: Universal-Image-Loader源码解析
-tags: coolrandy
-grammar_footnote: true
-grammar_cjkEmphasis: true
-grammar_cjkRuby: true
+category: 技术
+comments: false
 ---
 
 # 使用介绍
