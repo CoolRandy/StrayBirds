@@ -22,6 +22,7 @@ comments: false
 
 1. 初始化
     1.1 添加完依赖后在Application或Activity中初始化ImageLoader
+
     ```java
     public class YourApplication extends Application {
 
@@ -37,6 +38,7 @@ comments: false
     }
     ```
     configuration表示ImageLoader的配置信息，这里使用了建造者模式，创建了一个默认的配置，此外我们可以手动配置，可以按照如下代码设置：
+    
     ```java
     //个性化配置，建造者模式
      File cacheDir = StorageUtils.getCacheDirectory(context); 
@@ -65,6 +67,7 @@ comments: false
      上面的配置选项可以根据我们实际需要进行添加
     1.2 加载配置项
     对于每次要加载的显示项在加载时也可以进行设置
+    
     ```java
     DisplayImageOptions options = new DisplayImageOptions.Builder() 
      .showImageOnLoading(R.drawable.ic_stub) //设置加载前默认图片
@@ -89,6 +92,7 @@ comments: false
     添加网络权限，提供读写磁盘权限
     1.4 下载显示图片
     两种方式：一种直接展示在显示控件中，一种下载图片进行回调
+    
     ```java
     //直接展示
     imageLoader.displayImage(imageUri, imageView);
