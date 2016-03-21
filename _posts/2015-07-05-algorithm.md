@@ -2,7 +2,7 @@
 layout: post
 title: 各类算法题解
 category: 技术
-comments: false
+comments: true
 ---
 
 该篇blog部分迁移自我的博客园博文[CoolRandy](http://www.cnblogs.com/CoolRandy/p/4575267.html)
