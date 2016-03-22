@@ -126,6 +126,7 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
 
     从注释中可以清晰的看到，该类采用了强引用的方式引用一定数量的bitmap对象，每次有一个bitmap对象被访问，它将会被移到队列的头部。当一个bitmap对象被添加进一个空的cache中，队列尾部的bitmap对象将会被移除，将会被GC倾向于回收掉
  - LruMemoryCache实现了MemoryCache接口，该接口中定义了put、get、remove等方法用于子类重写操作cache中的对象，首先看一下构造方法
+
     ```java
     /** @param maxSize Maximum sum of the sizes of the Bitmaps in this cache */
 	public LruMemoryCache(int maxSize) {
@@ -136,11 +137,13 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
 		this.map = new LinkedHashMap<String, Bitmap>(0, 0.75f, true);
 	}
     ```
+    
     该构造方法中实例化了一个LinkedHashMap对象，这里关注一下LinkedHashMap的三个参数含义：第一个参数为map容量，这里默认为0；第二个参数是负载因子loadFactor，表示已存和的数据容量和总容量的比值，采用小数表示，默认为0.75，当map中的数据量达到总容量的75%时，容量空间自动扩容原容量的一倍，不需要改动；第三个参数是访问顺序accessOrder，在平常创建LinkedHashMap实例对象时一般不指定该参数，其内部缺省构造方法会将其赋值为false，即按照插入的顺序创建循环链表，不会移动访问对象的位置。这里我们需要实现的是LRU算法，所以这个参数很关键，需要设置为true，这样就可以保证链表头结点head到尾节点tail的顺序按照“近期最少访问->近期经常访问”，即当访问某个对象时就会将其插到链尾，作为新的尾节点，对于指定头结点的双向循环链表而言，就是插入到头结点的前一个节点。这一点也可以从LinkedHashMap的注释上得到印证：
     > Entries are kept in a doubly-linked list. The iteration order is,   by default, the order in which keys were inserted. Reinserting an already-present key doesn't change the order. If the three argument constructor is used, and {@code accessOrder} is specified as {@code true}, the iteration will be in the order that entries were accessed.The access order is affected by {@code put}, {@code get}, and {@code putAll} operations,but not by operations on the collection views.
     
  - 接下来将从重写的map操作方法实现上来分析
     **1.get方法**
+
     ```java
     /**
 	 * Returns the Bitmap for {@code key} if it exists in the cache. If a Bitmap was returned, it is moved to the head
@@ -157,7 +160,9 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
 		}
 	}
     ```
+    
     如果cache中存在所查找的bitmap对象，则直接返回，这里调用了LinkedHashMap的get方法，其内部实现就是将该对象移到队列的头部，这里既然讲到这里了，我们不妨去看一下LinkedHashMap的get方法内部实现：
+    
     ```java
     @Override public V get(Object key) {
         /*
@@ -187,7 +192,9 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
         return null;
     }
     ```
+    
     当查找的key不为空时，会调用Collections.secondaryHash(key)方法对key进行hash，从这个方法名我们可以猜测出是对key做了两次hash处理，那究竟是不是这样呢？接着来看一看：
+    
     ```java
     /**
      * Computes a hash code and applies a supplemental hash function to defend
@@ -212,10 +219,12 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
         return h ^ (h >>> 16);
     }
     ```
+    
     从上面的注释中即可看出是考虑到直接调用key的hashcode方法对于解决hash冲突的能力比较薄弱，所以又进行了一次移位处理的hash过程,这样做的目的就是尽可能的减少hash冲突的出现，具体这种移位的hash算法原理暂时留到后面再理解~
     
     继续回到上面get方法的分析，在分析之前首先明确一点就是，LinkedHashMap中定义了一个HashMapEntry内部类，用来存储键值对，包含key、value、next和hash属性，LinkedHashMap内部维护了一个该entry对象的table数组，也就是其中的hash表数据结构，该table数组的索引逻辑上就叫做bucket(槽)。在得到key对应的hash值之后，通过tab[hash & (tab.length - 1)] (这里采用相与的方式是保证数组下标值小于table数组长，防止越界)找到索引位置的entry对象，然后从该entry对象开始遍历链表，这里采用了**链地址法**来解决hash冲突，即对于散列到相同槽位的entry对象以单链表的形式连接起来。如果key值相同，且accessOrder为false，则直接返回value值；如果accessOrder为true，则将查找的entry对象移到双向循环链尾，至此get方法分析完毕~
     **2.put方法**
+    
     ```java
     /** Caches {@code Bitmap} for {@code key}. The Bitmap is moved to the head of the queue. */
 	@Override
@@ -266,7 +275,9 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
 		}
 	}
     ```
+    
     如果key和value不为空，首先计算对应的bitmap对象的字节大小，累加到size上，然后调用LinkedHashMap的put方法，这里实际上调用的是HashMap的put方法，LinkedHashMap是继承于HashMap的，但是并没有重写HashMap的put方法，而只是重写了其中的addNewEntry方法，具体参见下面的代码：
+    
     ```java
     //HashMap
      @Override public V put(K key, V value) {
@@ -296,7 +307,9 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
         return null;
     }
     ```
+    
     可以看到倒数第二行调用了addNewEntry方法，这个方法在LinkedHashMap中是重写了的，下面会做相应分析。我们先来看一下put的实现原理，如果传入的key不为空，同样和get中分析的一样进行二次hash，找到entry对象所在的索引位置，即槽位。然后遍历链表，用新的value替换掉旧的value值。如果该entry对象不存在，就创建一个，首先判断容量大小是否超过阀值，若超过则容量加倍，并重新计算索引位置；接着就调用addNewEntry方法添加entry对象，下面就来看一下addNewEntry方法内部是如何实现的
+    
     ```java
     //LinkedHashMap
     /**
@@ -319,7 +332,9 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
         table[index] = oldTail.nxt = header.prv = newTail;
     }
     ```
+    
     首先明确一点就是LinkedHashMap内部同时维护了一个双向循环链表用于保存Entry对象，加入一个head头结点，将所有插入到该LinkedHashMap中的Entry按照插入的先后顺序依次加入到以head为头结点的双向循环链表中。根据LRU的算法要求当超出设定容量大小时会删除循环链表中近期最少使用的entry对象，也即header的next节点；之后将新添加的entry对象添加到链表的尾部，这里的实现有点奇怪，正常的情况应该是初始链表为header->entry1->entry2->header,当添加一个新的entry对象，这时会将其插入到链尾即header->entry1->entry2->entry3->header,如果超过最大尺寸则删除header的next节点，即header->entry2->entry3->header，**但是我从代码的最后三行实现里发现似乎指向并未完全，可能这里未理解透彻？** 这里顺便提到一种情况就是：如果新加入的对象entry3尺寸比较大，需要同时释放entry1和entry2才不会导致OOM的现象，那么就需要迭代LinkedHashMap不断判断内存是否足够，删除节点知道内存够用为止，示例代码如下：
+    
     ```java
     private void checkSize() {
         if(size>limit){
@@ -336,6 +351,7 @@ UIL的内存缓存默认采用了**LRU算法**，即Least Recently Used近期最
         }
     }
     ```
+    
     接下来继续回到前面对于LruMemoryCache中的put方法分析，调用map.put(key, value)返回移除的旧value，如果不为空，cache的大小减去移除的bitmap对象的字节大小；当添加新的entry对象进来后，需要重新调整大小，调用trimToSize方法，该方法的作用就是Remove the eldest entries until the total of remaining entries is at or below the requested size.移除最老的节点知道全部保留的Entry对象大小在要求的尺寸范围内，至此对于put的过程也分析完毕~
  - 总结分析
     实际上LruMemoryCache是参照android.support.v4.util.LruCache的实现来写的，唯一的不同之处在于实例化LinkedHashMap对象时，<K,V>具体化为了<String, Bitmap>，而这也刚好体现了UIL本生就是为图片缓存而设计的初衷。
