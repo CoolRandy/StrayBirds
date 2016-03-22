@@ -2,7 +2,7 @@
 layout: post
 title: Universal-Image-Loader源码解析
 category: 技术
-comments: false
+comments: true
 ---
 
 # 使用介绍
