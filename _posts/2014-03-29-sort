@@ -1,0 +1,301 @@
+---
+layout: post
+title: 排序算法总结
+category: 技术
+comments: true
+---
+
+```java
+package com.coolrandy;
+import java.util.Random;
+
+/**
+ * Created by admin on 2016/3/29.
+ */
+public class BaseSort {
+
+    public static class Node{
+        int data;
+        Node next;
+
+        public Node(int data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
+
+    /**
+     * 冒泡排序
+     * @param a
+     */
+    public static void bubbleSort(int[] a){
+        int length = a.length;
+        boolean flag = true;
+        for (int i = 0; i < length-1 && flag; i++){
+            flag = false;
+            for (int j = 0; j < length-1-i; j++){
+
+                if(a[j] > a[j+1]){
+                    int temp = a[j];
+                    a[j] = a[j+1];
+                    a[j+1] = temp;
+
+                    flag = true;
+                }
+            }
+
+            if (!flag){
+                return;
+            }
+        }
+    }
+
+    /**
+     * 对于快排，如果采用固定枢轴值，比如取第一个元素，那么如果输入的序列是随机的，处理时间可以接受，但是如果数组已经有序
+     * 无论是升序还是降序，以及重复数组，这样的分割都不好   因为每次划分只能使待排序序列减一，此时为最坏情况，
+     * 快速排序沦为起泡排序，时间复杂度为Θ(n^2)  所以对于输入数据有序或部分有序的情况，应避免使用第一个元素作为枢轴值
+     *
+     * 可以采用示例所示的随机化处理取枢轴值，这样对于有序的情况效果基本不错，但是对于大量重复值的数组效果依然很糟糕，接近Θ(n^2)
+     * 实际上，随机化快速排序得到理论最坏情况的可能性仅为1/(2^n）。所以随机化快速排序可以对于绝大多数输入数据达到O(nlogn）的期望时间复杂度。
+     *
+     * 三数取中 使用左端、右端和中心位置上的三个元素的中值作为枢纽元  但依然处理不了重复数组问题
+     * 对待排序序列中low、mid、high三个位置上数据进行排序，取他们中间的那个数据作为枢轴，并用0下标元素存储枢轴
+     *
+     * 优化1、当待排序序列的长度分割到一定大小后，使用插入排序
+     * 对于很小和部分有序的数组，快排不如插排好
+     * 截止范围：待排序序列长度N = 10，虽然在5~20之间任一截止范围都有可能产生类似的结果，这种做法也避免了一些有害的退化情形
+     *
+     * @param a
+     * @param low
+     * @param high
+     * @return
+     */
+    public static int partition(int[] a, int low, int high){
+
+//        int pivot = a[low];//采用数组第一个元素作为枢轴值
+        int arr = low + (new Random().nextInt(high-low+1));//随机化生成一个枢轴值下标
+        System.out.println(arr);
+
+        int temp = a[low];
+        a[low] = a[arr];
+        a[arr] = temp;
+
+        int pivot = a[low];
+
+        while (low < high){
+
+            while (low < high && a[high] > pivot){
+                high--;
+            }
+            a[low] = a[high];
+
+            while (low < high && a[low] < pivot){
+                low++;
+            }
+            a[high] = a[low];
+        }
+        a[low] = pivot;
+        return low;
+    }
+
+    public static void quickSort(int[] a, int low, int high){
+
+        if (low < high){
+            if (high - low + 1 < 10) {//采用插排
+                insertSort(a);
+                return;
+            }else {
+                int pivot = partition(a, low, high);
+                quickSort(a, low, pivot-1);
+                quickSort(a, pivot+1, high);
+            }
+        }
+    }
+
+    /*函数作用：取待排序序列中low、mid、high三个位置上数据，选取他们中间的那个数据作为枢轴*/
+    int SelectPivotMedianOfThree(int arr[],int low,int high)
+    {
+        int mid = low + ((high - low) >> 1);//计算数组中间的元素的下标
+
+        //使用三数取中法选择枢轴
+        if (arr[mid] > arr[high])//目标: arr[mid] <= arr[high]
+        {
+            swap(arr, mid, high);
+        }
+        if (arr[low] > arr[high])//目标: arr[low] <= arr[high]
+        {
+            swap(arr, low, high);
+        }
+        if (arr[mid] > arr[low]) //目标: arr[low] >= arr[mid]
+        {
+            swap(arr, mid, low);
+        }
+        //此时，arr[mid] <= arr[low] <= arr[high]
+        return arr[low];
+        //low的位置上保存这三个位置中间的值
+        //分割时可以直接使用low位置的元素作为枢轴，而不用改变分割函数了
+    }
+
+    public static void  swap(int[] arr, int a, int b){
+
+        int temp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = temp;
+
+    }
+
+    /**
+     * 插入排序
+     * @param a
+     */
+    public static void insertSort(int[] a){
+
+        int i = 0, j = 0;
+        int temp = 0;
+        for (i = 1; i < a.length; i++){
+            temp = a[i];
+            j = i;
+            while (j > 0 && temp < a[j-1]){
+                a[j] = a[j-1];
+                j--;
+            }
+            a[j] = temp;
+        }
+    }
+
+    /**
+     * 希尔排序  在插入排序的基础上的改进
+     * @param a
+     */
+    public static void shellSort(int[] a){
+
+        int i = 0, j = 0;
+        int length = a.length;
+        int temp = 0;
+        int k = length / 2;//增量由1变为length/2
+        while (k > 0){
+
+            for (i = k; i < length; i += k){
+                temp = a[i];
+                j = i;
+                while (j > k && temp < a[j - k]){
+
+                    a[j] = a[j-k];
+                    j = j - k;
+                }
+                a[j] = temp;
+            }
+
+            k = k / 2;
+        }
+
+    }
+
+    /**
+     * 选择排序
+     * @param a
+     */
+    public static void selectSort(int[] a){
+
+        int length = a.length;
+        for (int i = 0; i < length-1; i++){
+
+            int min = i;
+            for (int j = i; j < length; j++){
+
+                if (a[j] < a[min]){
+                    swap(a, j, min);
+                }
+                if (min != i){
+                    swap(a, min, i);
+                }
+            }
+        }
+    }
+
+    /**
+     * 堆排序  思路比较简单：1、采用下沉的方式移动节点
+     * @param a
+     * @param k  注意：k从0开始和从1开始时不一样的，要注意
+     * @param length
+     */
+    public static void adjustDown(int[] a, int k, int length){
+
+        int left = getLeftChildIndex(k);
+        int right = getRightChildIndex(k);
+        int largest = k;
+        if (left < length && a[k] < a[left]){
+            largest = left;
+        }
+
+        if (right < length && a[largest] < a[right]){
+            largest = right;
+        }
+
+        if (largest != k){
+            int temp = a[k];
+            a[k] = a[largest];
+            a[largest] = temp;
+            adjustDown(a, largest, length);
+        }
+
+    }
+
+    /**
+     * 建最大推
+     * @param
+     */
+    public static void buildMaxHeap(int[] a){
+
+        int index = getParentIndex(a.length-1);
+        for (int i = index; i >= 0; i--){
+
+            adjustDown(a, i, a.length);
+        }
+    }
+
+
+    public static void heapSort(int[] a){
+
+        buildMaxHeap(a);
+        for (int i = a.length-1; i > 0; i--){
+            int temp = a[0];
+            a[0] = a[i];
+            a[i] = temp;
+            adjustDown(a, 0, i);
+        }
+    }
+
+    public static int getParentIndex(int current){
+        return (current - 1) >> 1;
+    }
+
+    public static int getLeftChildIndex(int current){
+
+        return (current << 1) + 1;
+    }
+
+    public static int getRightChildIndex(int current){
+
+        return (current << 1) + 2;
+    }
+
+    private static int[] sort = new int[]{1,0,10,20,3,5,6,4,9,8,12,17,34,11};
+    public static void main(String[] args){
+
+        int[] a = new int[]{2, 7, 5, 19, 24, 15, 13, 20};
+
+//        bubbleSort(a);
+//        quickSort(a, 0, 7);
+//        insertSort(a);
+//        shellSort(a);
+//        selectSort(a);
+        heapSort(sort);
+        for (int temp: sort){
+            System.out.print(temp + " ");
+        }
+    }
+
+}
+
+```
