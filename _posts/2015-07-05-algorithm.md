@@ -6,6 +6,7 @@ comments: true
 ---
 
 该篇blog部分迁移自我的博客园博文[CoolRandy](http://www.cnblogs.com/CoolRandy/p/4575267.html)
+
 此外如果大家感兴趣可以来关注我github上[算法的专栏](https://github.com/CoolRandy/Algorithm)
 
 ##字符串压缩
