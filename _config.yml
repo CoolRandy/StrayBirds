@@ -110,9 +110,6 @@ customLinks:
     message: 其他相关链接
 
 #comment config
-#disqus:
-#  config: false
-#  id: minixalpha
 comments:
   provider: duoshuo
   duoshuo: 
