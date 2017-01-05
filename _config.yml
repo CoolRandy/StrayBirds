@@ -110,9 +110,13 @@ customLinks:
     message: 其他相关链接
 
 #comment config
-disqus:
-  config: false
-  id: minixalpha
+#disqus:
+#  config: false
+#  id: minixalpha
+comments:
+  provider: duoshuo
+  duoshuo: 
+    short_name: coolrandy
 
 
 #################################### global configure #######################################
@@ -125,7 +129,7 @@ highlighter: pygments
 title: 飞鸟集
 description: 人生到处知何似，应似飞鸿踏雪泥
 theme: kunka 
-disqusname: randy
+#disqusname: randy
 
 # theme can be: hack, leap-day, merlot, midnight, minimal, modernist, slate, time-machine, kunka
 # those themes are all come from GitHub Pages Themes
