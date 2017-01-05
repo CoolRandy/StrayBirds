@@ -67,7 +67,7 @@ nav:
 author:
     name: randy
     email: coolrandy@outlook.com
-    imageLink: https://avatars.githubusercontent.com/minixalpha
+    imageLink: https://github.com/CoolRandy/blog/blob/gh-pages/images/randy.jpg
     simpleIntro: 面朝大海，春暖花开。哈喽，大家好，我是Randy！
     detailIntro:
       <p>Jekyll 是一个简洁的、特别针对博客平台的 静态网站 生成器。它使用一个模板目录作为网站布局的基础框架，并在其上运行 Textile 、 Markdown 或 Liquid 标记语言的转换器，最终生成一个完整的静态Web站点，可以被放置在Apache或者你喜欢的其他任何Web服务器上。它同时也是 GitHub Pages 、一个由 GitHub 提供的用于托管项目主页或博客的服务，在后台所运行的引擎。</p>
@@ -78,11 +78,11 @@ follow:
   - class: icon-rss
     url: /atom.xml
   - class: icon-weibo
-    url: http://weibo.com
+    url: http://weibo.com/1828908015/profile?topnav=1&wvr=6&is_all=1
   - class: icon-renren
     url: http://renren.com
   - class: icon-github-alt
-    url: http://github.com
+    url: http://github.com/CoolRandy
   - class: icon-twitter
     url: http://twitter.com
   - class: icon-google-plus
@@ -91,12 +91,14 @@ follow:
 #Links
 customLinks:
   - item:
-    - text: 掌心
-      url: http://www.zhanxin.info
-    - text: Jekyll
-      url: http://jekyllrb.com
-    - text: Jekyll Theme
-      url: http://www.zhanxin.info/themes.html
+    - text: Trinea
+      url: http://www.trinea.cn/
+    - text: 胡凯
+      url: http://hukai.me/
+    - text: 郭霖
+      url: http://blog.csdn.net/guolin_blog
+    - text: 廖祜秋
+      url: https://www.liaohuqiu.net/cn/
     message: Friends
   - item:
     - text: Font Awesome
